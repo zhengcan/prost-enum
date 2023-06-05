@@ -1,6 +1,8 @@
 [package]
 name = "prost-enum"
-version = "0.1.0"
+version = "0.0.0"
+license = "MIT"
+description = "Enhance serde support for Enums of prost generated files."
 edition = "2021"
 
 [lib]
