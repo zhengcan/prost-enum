@@ -1,8 +1,8 @@
 [package]
 name = "prost-enum"
-version = "0.0.0"
+version = "0.0.1"
 license = "MIT"
-description = "Enhance serde support for Enums of prost generated files."
+description = "Enhance Enums of prost generated files to support serde and sea-orm."
 edition = "2021"
 
 [lib]
@@ -10,10 +10,17 @@ proc-macro = true
 
 [dependencies]
 proc-macro2 = "1.0"
+proc-macro-error = "1.0"
 quote = "1.0"
 syn = "2.0"
+sea-orm = { version = "0.12", optional = true }
 
 [dev-dependencies]
-serde = "1.0"
+serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+prost = "0.12"
 trybuild = { version = "1.0", features = ["diff"] }
+
+[features]
+default = []
+sea_orm = []

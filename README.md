@@ -1,6 +1,7 @@
 # Usage
 
-Let enums derive `prost_enum::Serialize_enum` and/or `prost_enum::Deserialize_enum` instead of default ones of serde.
+Use `prost_enum::enhance` to make protobuf enums support better serialize / deserialize.
+(Optional) Make enums to be used in Sea-ORM, which will be treated as `i32` / `Integer`.
 
 ```rust
 // In build.rs
@@ -8,7 +9,7 @@ let mut config = prost_build::Config::new();
 // ...
 config.enum_attribute(
     ".",
-    "#[derive(prost_enum::Serialize_enum, prost_enum::Deserialize_enum)]",
+    "#[prost_enum::enhance]",
 );
 // ...
 ```

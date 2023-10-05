@@ -2,17 +2,62 @@ extern crate proc_macro;
 
 mod parse;
 
+use parse::ProstEnum;
 use proc_macro::TokenStream;
+use proc_macro2::Ident;
+use proc_macro_error::proc_macro_error;
 use quote::quote;
 use syn::parse_macro_input;
 
-use crate::parse::Input;
+#[proc_macro_attribute]
+#[proc_macro_error]
+pub fn enhance(_args: TokenStream, input: TokenStream) -> TokenStream {
+    let prost_enum = {
+        let input = input.clone();
+        parse_macro_input!(input as ProstEnum)
+    };
+
+    let mut output = proc_macro2::TokenStream::new();
+    match prost_enum.repr {
+        Some(_) => {
+            output.extend(Some(quote! {
+                #[derive(prost_enum::Serialize_enum, prost_enum::Deserialize_enum)]
+            }));
+            #[cfg(feature = "sea_orm")]
+            output.extend(Some(quote! {
+                #[derive(sea_orm::entity::prelude::EnumIter, sea_orm::entity::prelude::DeriveActiveEnum)]
+                #[sea_orm(rs_type = "i32", db_type = "Integer")]
+            }));
+        }
+        None => output.extend(Some(quote! {
+            #[derive(serde::Serialize, serde::Deserialize)]
+        })),
+    }
+    output.extend(proc_macro2::TokenStream::from(input));
+    output.into()
+}
 
 #[proc_macro_derive(Serialize_enum)]
 pub fn derive_serialize(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as Input);
-    let ident = input.ident;
+    let input = parse_macro_input!(input as ProstEnum);
 
+    match input.repr {
+        Some(_) => gen_serialize(input.ident),
+        None => TokenStream::from(quote! {}),
+    }
+}
+
+#[proc_macro_derive(Deserialize_enum, attributes(serde))]
+pub fn derive_deserialize(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as ProstEnum);
+
+    match input.repr {
+        Some(_) => gen_deserialize(input.ident),
+        None => TokenStream::from(quote! {}),
+    }
+}
+
+fn gen_serialize(ident: Ident) -> TokenStream {
     TokenStream::from(quote! {
         impl serde::Serialize for #ident {
             #[allow(clippy::use_self)]
@@ -27,11 +72,7 @@ pub fn derive_serialize(input: TokenStream) -> TokenStream {
     })
 }
 
-#[proc_macro_derive(Deserialize_enum, attributes(serde))]
-pub fn derive_deserialize(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as Input);
-    let ident = input.ident;
-
+fn gen_deserialize(ident: Ident) -> TokenStream {
     TokenStream::from(quote! {
         impl<'de> serde::Deserialize<'de> for #ident {
             #[allow(clippy::use_self)]
