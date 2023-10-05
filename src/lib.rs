@@ -23,7 +23,7 @@ pub fn enhance(_args: TokenStream, input: TokenStream) -> TokenStream {
             output.extend(Some(quote! {
                 #[derive(prost_enum::Serialize_enum, prost_enum::Deserialize_enum)]
             }));
-            #[cfg(feature = "sea_orm")]
+            #[cfg(feature = "sea-orm")]
             output.extend(Some(quote! {
                 #[derive(sea_orm::entity::prelude::EnumIter, sea_orm::entity::prelude::DeriveActiveEnum)]
                 #[sea_orm(rs_type = "i32", db_type = "Integer")]
