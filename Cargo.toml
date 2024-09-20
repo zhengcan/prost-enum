@@ -1,6 +1,6 @@
 [package]
 name = "prost-enum"
-version = "0.0.2"
+version = "0.1.0"
 license = "MIT"
 description = "Enhance Enums of prost generated files to support serde and sea-orm."
 repository = "https://github.com/zhengcan/prost-enum"
