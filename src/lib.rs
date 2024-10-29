@@ -93,12 +93,22 @@ fn gen_deserialize(ident: Ident) -> TokenStream {
                     where
                         R: serde::de::Error,
                     {
-                        match #ident::from_str_name(v) {
-                            Some(e) => Ok(e),
-                            None => Err(serde::de::Error::custom(format!(
-                                "unknown enum value: {}",
-                                v
-                            ))),
+                        if v.is_empty() {
+                            match #ident::from_i32(0) {
+                                Some(e) => Ok(e),
+                                None => Err(serde::de::Error::custom(format!(
+                                    "unknown enum value: {}",
+                                    v
+                                )))
+                            }
+                        } else {
+                            match #ident::from_str_name(v) {
+                                Some(e) => Ok(e),
+                                None => Err(serde::de::Error::custom(format!(
+                                    "unknown enum value: {}",
+                                    v
+                                ))),
+                            }
                         }
                     }
 
